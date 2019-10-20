@@ -23,11 +23,20 @@ export default class News extends Component {
   //you can change the props above to whatever you want/need.
 
   render () {
-    const {articles} = this.props;
+    const {articles} = this.props.articles;
 
     return (
       <View style={styles.container}>
         {/*Some FlatList or SectionList*/}
+        <FlatList
+          data={articles}
+          renderItem={( { item, index } ) => 
+            <Text>{item}</Text>
+          }
+          keyExtractor={(item, index) => {
+            return index.toString()
+          }}
+        />
       </View>
     );
   }

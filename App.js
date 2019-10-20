@@ -8,18 +8,22 @@
 */
 
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, Button, Image, View, Dimensions, FlatList, SafeAreaView } from 'react-native';
 import { Images, Colors } from './App/Themes'
 import APIRequest from './App/Config/APIRequest'
+import metrics from './App/Themes/Metrics.js'
+import { Keyboard } from 'react-native';
 
 import News from './App/Components/News'
 import Search from './App/Components/Search'
+
+const { width, height } = Dimensions.get('window')
 
 export default class App extends React.Component {
 
   state = {
     loading: true,
-    articles : [],
+    articles : ["hungrys"],
     searchText: '',
     category: ''
   }
@@ -38,23 +42,68 @@ export default class App extends React.Component {
     } else {
       resultArticles = await APIRequest.requestCategoryPosts(category);
     }
+    console.warn(resultArticles);
     console.log(resultArticles);
+    Alert.alert(resultArticles);
     this.setState({loading: false, articles: resultArticles})
   }
+
+  getArticleContent = () => {
+    const {articles, loading} = this.state;
+
+    let contentDisplated = null;
+
+    if (loading) {
+      contentDisplated = 
+      <ActivityIndicator
+        style = {styles.ActivityIndicator}
+        size="large" color="black"/>;
+    } else {
+      contentDisplated = <News articles={articles}/>;
+    } 
+
+    return (
+      <View style={{flex : 1}}>
+        {contentDisplated}
+      </View>
+    )
+  }
+
+  searchFunction = value => {
+    Alert.alert("This Worked");
+    this.setState({searchText: value});
+    this.loadArticles(this.state.searchText, '')
+    value = "";
+  }
+
 
   render() {
     const {articles, loading} = this.state;
 
     return (
       <SafeAreaView style={styles.container}>
+        <Image style={styles.logo} source={require('./App/Images/nyt.png')}/>
+        {/* <Text style={{textAlign: 'center'}}>Have fun! :) {"\n"} Start by changing the API Key in "./App/Config/AppConfig.js" {"\n"} Then, take a look at the following components: {"\n"} NavigationButtons {"\n"} Search {"\n"} News {"\n"} 🔥</Text> */}
 
-        <Text style={{textAlign: 'center'}}>Have fun! :) {"\n"} Start by changing the API Key in "./App/Config/AppConfig.js" {"\n"} Then, take a look at the following components: {"\n"} NavigationButtons {"\n"} Search {"\n"} News {"\n"} 🔥</Text>
-
-        {/*First, you'll need a logo*/}
-
+        {/* <News articles={articles} /> */}
+        
+        <Search searchFunction = {this.loadArticles}/>
         {/*Then your search bar*/}
 
         {/*And some news*/}
+        <Button styles={styles.articleView} title="Hi" onPress={() => this.loadArticles}/>
+        <View style={styles.articleView}>
+          <FlatList
+            data={this.state.articles}
+            renderItem={({ item, index }) => 
+              // <ToDo text={item}/>
+              <Text> {item} </Text>
+            }
+            keyExtractor={(item, index) => {
+              return index.toString()
+            }}
+          />
+        </View>
 
         {/*Though, you can style and organize these however you want! power to you 😎*/}
 
@@ -67,9 +116,17 @@ export default class App extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 15,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center'
-  }
+  },
+  logo:{
+    flex: 1,
+    width,
+    resizeMode: "contain",
+  },
+  articleView:{
+    flex:10,
+  },
 });
