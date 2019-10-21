@@ -16,6 +16,7 @@ import { Keyboard } from 'react-native';
 
 import News from './App/Components/News'
 import Search from './App/Components/Search'
+import Article from './App/Components/Article';
 
 const { width, height } = Dimensions.get('window')
 
@@ -23,18 +24,16 @@ export default class App extends React.Component {
 
   state = {
     loading: true,
-    articles : ["hungrys"],
+    articles : [],
     searchText: '',
     category: ''
   }
 
   componentDidMount() {
-
-    //uncomment this to run an API query!
-    //this.loadArticles();
+    this.loadArticles();
   }
 
-  async loadArticles(searchTerm = '', category = '') {
+  async loadArticles(searchTerm = 'food', category = '') {
     this.setState({articles:[], loading: true});
     var resultArticles = [];
     if (category === '') {
@@ -42,9 +41,9 @@ export default class App extends React.Component {
     } else {
       resultArticles = await APIRequest.requestCategoryPosts(category);
     }
-    console.warn(resultArticles);
-    console.log(resultArticles);
-    Alert.alert(resultArticles);
+    // console.warn(resultArticles);
+    // console.log(resultArticles);
+    // Alert.alert(resultArticles);
     this.setState({loading: false, articles: resultArticles})
   }
 
@@ -91,16 +90,19 @@ export default class App extends React.Component {
         {/*Then your search bar*/}
 
         {/*And some news*/}
-        <Button styles={styles.articleView} title="Hi" onPress={() => this.loadArticles}/>
         <View style={styles.articleView}>
           <FlatList
             data={this.state.articles}
-            renderItem={({ item, index }) => 
-              // <ToDo text={item}/>
-              <Text> {item} </Text>
+            renderItem={({item}) => 
+              <Article
+                byline={item.byline} 
+                date={item.date} 
+                snippet={item.snippet} 
+                title={item.title}
+                url={item.url}/>
             }
-            keyExtractor={(item, index) => {
-              return index.toString()
+            keyExtractor={(item) => {
+              return item.url
             }}
           />
         </View>
